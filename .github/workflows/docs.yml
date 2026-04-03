@@ -21,7 +21,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install doc dependencies
-        run: pip install mkdocs mkdocs-material "mkdocstrings[python]"
+        run: pip install poetry && poetry install --with dev
 
       - name: Deploy to GitHub Pages
-        run: mkdocs gh-deploy --force
+        run: poetry run mkdocs gh-deploy --force

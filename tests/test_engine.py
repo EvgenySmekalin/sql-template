@@ -8,10 +8,8 @@ import pytest
 from sql_template import (
     EmptyInClauseError,
     ParamStyle,
-    QueryResult,
-    SQLTemplateError,
-    TemplateSizeLimitError,
     TemplateEngine,
+    TemplateSizeLimitError,
     UnsafeIdentifierError,
 )
 from sql_template.exceptions import MultiStatementError

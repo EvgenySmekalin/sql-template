@@ -293,7 +293,7 @@ Full documentation is available at **https://EvgenySmekalin.github.io/sql-templa
 ### Build docs locally
 
 ```bash
-pip install -e ".[dev]"
-mkdocs serve          # live preview at http://localhost:8000
-mkdocs build          # generate static site in site/
+poetry install
+poetry run mkdocs serve   # live preview at http://localhost:8000
+poetry run mkdocs build   # generate static site in site/
 ```

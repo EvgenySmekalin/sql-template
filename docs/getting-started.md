@@ -6,6 +6,12 @@
 pip install sql-template
 ```
 
+> **Using Poetry?**
+>
+> ```bash
+> poetry add sql-template
+> ```
+
 ## Basic Usage
 
 Create a `TemplateEngine` once and reuse it throughout your application:

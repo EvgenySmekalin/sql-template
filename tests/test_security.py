@@ -26,17 +26,16 @@ from sql_template import (
 )
 from sql_template.exceptions import MultiStatementError
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
 
-@pytest.fixture()
+@pytest.fixture
 def engine() -> TemplateEngine:
     return TemplateEngine(param_style=ParamStyle.FORMAT)
 
 
-@pytest.fixture()
+@pytest.fixture
 def named_engine() -> TemplateEngine:
     return TemplateEngine(param_style=ParamStyle.NAMED)
 

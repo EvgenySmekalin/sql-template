@@ -1,17 +1,14 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
 
-[project]
+[tool.poetry]
 name = "sql-template"
-version = "0.1.0"
+version = "0.3.0"
 description = "Generate SQL queries from Jinja2 templates with automatic parameter binding"
 readme = "README.md"
 license = "MIT"
-requires-python = ">=3.10"
-authors = [
-    { name = "Evgeny" },
-]
+authors = ["Evgeny Smekalin"]
 keywords = ["sql", "template", "jinja2", "query-builder", "parameterized-queries"]
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -26,34 +23,30 @@ classifiers = [
     "Topic :: Software Development :: Libraries",
     "Typing :: Typed",
 ]
-dependencies = [
-    "jinja2>=3.1",
-]
+packages = [{include = "sql_template", from = "src"}]
 
-[project.urls]
+[tool.poetry.urls]
 Homepage = "https://github.com/EvgenySmekalin/sql-template"
 Documentation = "https://EvgenySmekalin.github.io/sql-template"
 Changelog = "https://github.com/EvgenySmekalin/sql-template/blob/main/CHANGELOG.md"
 Issues = "https://github.com/EvgenySmekalin/sql-template/issues"
 
-[project.scripts]
+[tool.poetry.scripts]
 sql-template = "sql_template.cli:main"
 
-[project.optional-dependencies]
-dev = [
-    "pytest>=8.0",
-    "pytest-cov>=5.0",
-    "hypothesis>=6.0",
-    "ruff>=0.4",
-    "mypy>=1.10",
-    "hatch>=1.12",
-    "mkdocs>=1.6",
-    "mkdocs-material>=9.5",
-    "mkdocstrings[python]>=0.25",
-]
+[tool.poetry.dependencies]
+python = ">=3.10,<4.0"
+jinja2 = ">=3.1"
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/sql_template"]
+[tool.poetry.group.dev.dependencies]
+pytest = ">=8.0"
+pytest-cov = ">=5.0"
+hypothesis = ">=6.0"
+ruff = ">=0.4"
+mypy = ">=1.10"
+mkdocs = ">=1.6"
+mkdocs-material = ">=9.5"
+mkdocstrings = {extras = ["python"], version = ">=0.25"}
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -66,6 +59,12 @@ src = ["src", "tests"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "N", "UP", "S", "B", "A", "C4", "PT"]
+# S704: Markup() is used intentionally to produce SQL placeholder strings, not HTML
+# S101: assert is the standard assertion mechanism in pytest tests
+ignore = ["S704"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S608"]
 
 [tool.mypy]
 python_version = "3.10"

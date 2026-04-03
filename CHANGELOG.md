@@ -9,6 +9,24 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.3.0] — 2026-04-03
+
+### Changed
+- Package layout: `sql_template/` moved back inside `src/` — now `src/sql_template/` (standard `src` layout)
+- Version bumped to 0.3.0
+
+## [0.2.0] — 2026-04-03
+
+### Changed
+- Switched from `src/` layout to flat layout — package is now `sql_template/` at the project root
+- Migrated build system from Hatchling to **Poetry** (`pyproject.toml` now uses `[tool.poetry]`)
+- Updated ruff config: added `S704` global ignore (intentional `Markup` usage for SQL); added per-file ignores for test assertions
+
+### Added
+- `poetry.lock` — reproducible dependency resolution
+- GitHub Pages documentation deployed automatically on push to `main`
+- Published to PyPI via Trusted Publishing (OIDC) on version tag push
+
 ## [0.1.0] — 2026-04-03
 
 ### Added
