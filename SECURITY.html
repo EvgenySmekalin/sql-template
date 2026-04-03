@@ -1,0 +1,1491 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Generate SQL queries from Jinja2 templates with automatic parameter binding">
+      
+      
+      
+        <link rel="canonical" href="https://EvgenySmekalin.github.io/sql-template/SECURITY.html">
+      
+      
+        <link rel="prev" href="COOKBOOK.html">
+      
+      
+        <link rel="next" href="PLAN.html">
+      
+      
+        
+      
+      
+      <link rel="icon" href="assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Security Model - sql-template</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sql-template-security-model" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="index.html" title="sql-template" class="md-header__button md-logo" aria-label="sql-template" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            sql-template
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Security Model
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/EvgenySmekalin/sql-template" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    EvgenySmekalin/sql-template
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="index.html" title="sql-template" class="md-nav__button md-logo" aria-label="sql-template" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    sql-template
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/EvgenySmekalin/sql-template" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    EvgenySmekalin/sql-template
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="getting-started.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api/engine.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TemplateEngine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api/result.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QueryResult
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api/params.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ParamStyle
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api/filters.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api/exceptions.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api/cli.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="COOKBOOK.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cookbook
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security Model
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="SECURITY.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#threat-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Threat Model
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Threat Model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#actors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Actors
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#protection-mechanisms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Protection Mechanisms
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Protection Mechanisms">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-automatic-bind-parameter-injection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Automatic Bind Parameter Injection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-sandboxedenvironment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. SandboxedEnvironment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-dangerous-filterglobal-removal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Dangerous Filter/Global Removal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-identifier-validation-identifier-orderby" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Identifier Validation (|identifier, |orderby)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-multi-statement-prevention" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Multi-Statement Prevention
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-template-size-limit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Template Size Limit
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#attack-vectors-and-mitigations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Attack Vectors and Mitigations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#raw-blocks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        {% raw %} Blocks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-sql-template-does-not-protect-against" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What sql-template Does NOT Protect Against
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#production-recommendations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Production Recommendations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reporting-security-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reporting Security Issues
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="PLAN.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Plan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="TECH_SPEC.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Technical Spec
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#threat-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Threat Model
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Threat Model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#actors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Actors
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#protection-mechanisms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Protection Mechanisms
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Protection Mechanisms">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-automatic-bind-parameter-injection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Automatic Bind Parameter Injection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-sandboxedenvironment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. SandboxedEnvironment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-dangerous-filterglobal-removal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Dangerous Filter/Global Removal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-identifier-validation-identifier-orderby" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Identifier Validation (|identifier, |orderby)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-multi-statement-prevention" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Multi-Statement Prevention
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-template-size-limit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Template Size Limit
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#attack-vectors-and-mitigations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Attack Vectors and Mitigations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#raw-blocks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        {% raw %} Blocks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-sql-template-does-not-protect-against" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What sql-template Does NOT Protect Against
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#production-recommendations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Production Recommendations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reporting-security-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reporting Security Issues
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="sql-template-security-model">sql-template — Security Model<a class="headerlink" href="#sql-template-security-model" title="Permanent link">&para;</a></h1>
+<p>This document describes the security architecture of sql-template, the threats it
+protects against, and requirements for safe use.</p>
+<h2 id="threat-model">Threat Model<a class="headerlink" href="#threat-model" title="Permanent link">&para;</a></h2>
+<p>sql-template is designed to generate parameterized SQL for execution by a database
+driver.  The primary threat is <strong>SQL injection</strong> — an attacker controlling a template
+variable value manipulates the resulting SQL string.</p>
+<h3 id="actors">Actors<a class="headerlink" href="#actors" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Actor</th>
+<th>Trusted?</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Template author</td>
+<td>Yes</td>
+<td>Writes <code>.sql</code> template files or inline strings</td>
+</tr>
+<tr>
+<td>Application code</td>
+<td>Yes</td>
+<td>Calls <code>engine.prepare()</code>, passes the params dict</td>
+</tr>
+<tr>
+<td>End user / HTTP input</td>
+<td><strong>No</strong></td>
+<td>Values may contain arbitrary malicious strings</td>
+</tr>
+</tbody>
+</table>
+<p>Template <em>structure</em> is authored by developers and is trusted.  Template <em>values</em>
+(the <code>params</code> dict) are untrusted and must never appear literally in the SQL output.</p>
+<hr />
+<h2 id="protection-mechanisms">Protection Mechanisms<a class="headerlink" href="#protection-mechanisms" title="Permanent link">&para;</a></h2>
+<h3 id="1-automatic-bind-parameter-injection">1. Automatic Bind Parameter Injection<a class="headerlink" href="#1-automatic-bind-parameter-injection" title="Permanent link">&para;</a></h3>
+<p>Every <code>{{ expr }}</code> in a template is automatically rewritten by <code>SQLBindExtension</code>
+(via Jinja2's <code>filter_stream</code> hook) to pass through the <code>_sql_bind</code> filter:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>{{ user_id }}  →  {{ user_id | _sql_bind(&quot;user_id&quot;) }}
+</code></pre></div>
+<p><code>_sql_bind</code> stores the value in a thread-local <code>ParamCollector</code> and returns a
+<code>Markup</code>-wrapped placeholder string (<code>%s</code>, <code>:name</code>, <code>$1</code>, etc.).  The placeholder
+— not the value — is written into the SQL string.</p>
+<p>This makes it <strong>structurally impossible</strong> for a plain <code>{{ value }}</code> expression to
+interpolate a value directly into SQL.</p>
+<h3 id="2-sandboxedenvironment">2. SandboxedEnvironment<a class="headerlink" href="#2-sandboxedenvironment" title="Permanent link">&para;</a></h3>
+<p>sql-template uses <code>jinja2.sandbox.SandboxedEnvironment</code>, which:</p>
+<ul>
+<li>Blocks access to <code>__class__</code>, <code>__subclasses__</code>, <code>__globals__</code>, <code>__mro__</code>, and
+  other dunder attributes (raises <code>SecurityError</code>).</li>
+<li>Prevents access to Python builtins (<code>os</code>, <code>sys</code>, <code>eval</code>, <code>exec</code>, etc.) that are
+  not explicitly exposed.</li>
+<li>Prevents arbitrary attribute traversal that could exfiltrate data or execute code.</li>
+</ul>
+<h3 id="3-dangerous-filterglobal-removal">3. Dangerous Filter/Global Removal<a class="headerlink" href="#3-dangerous-filterglobal-removal" title="Permanent link">&para;</a></h3>
+<p>The following Jinja2 built-ins are explicitly removed from the environment:</p>
+<table>
+<thead>
+<tr>
+<th>Removed</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\|safe</code></td>
+<td>Would output values as raw HTML/SQL, bypassing escaping</td>
+</tr>
+<tr>
+<td><code>\|striptags</code></td>
+<td>Not needed in SQL; prevents misuse</td>
+</tr>
+<tr>
+<td><code>\|xmlattr</code></td>
+<td>Not needed in SQL; prevents attribute injection</td>
+</tr>
+<tr>
+<td><code>lipsum()</code></td>
+<td>No SQL use; reduces surface area</td>
+</tr>
+<tr>
+<td><code>range()</code></td>
+<td>Prevents template-level DoS via large loop sequences</td>
+</tr>
+<tr>
+<td><code>namespace()</code></td>
+<td>Not needed; reduces surface area</td>
+</tr>
+<tr>
+<td><code>cycler()</code> / <code>joiner()</code></td>
+<td>Not needed in SQL context</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4-identifier-validation-identifier-orderby">4. Identifier Validation (<code>|identifier</code>, <code>|orderby</code>)<a class="headerlink" href="#4-identifier-validation-identifier-orderby" title="Permanent link">&para;</a></h3>
+<p>Dynamic SQL identifiers (table names, column names) cannot be passed as bind
+parameters — they must appear literally in the SQL.  The <code>|identifier</code> and <code>|orderby</code>
+filters provide safe interpolation:</p>
+<ol>
+<li><strong>Regex check</strong>: the identifier must match <code>^[a-zA-Z_][a-zA-Z0-9_.]*$</code> (default).</li>
+<li><strong>Dangerous pattern check</strong>: strings containing <code>--</code>, <code>/*</code>, <code>;</code>, <code>'</code>, <code>"</code>, <code>\</code>,
+   or null bytes are rejected unconditionally.</li>
+<li><strong>Length check</strong>: identifiers longer than 128 characters are rejected.</li>
+<li><strong>Allowlist check</strong> (optional): if <code>identifier_allowlist</code> / <code>order_by_allowlist</code>
+   is configured, only names in those sets are accepted.</li>
+</ol>
+<p>Any violation raises <code>UnsafeIdentifierError</code>.</p>
+<h3 id="5-multi-statement-prevention">5. Multi-Statement Prevention<a class="headerlink" href="#5-multi-statement-prevention" title="Permanent link">&para;</a></h3>
+<p>By default (<code>allow_multistatement=False</code>), sql-template raises <code>MultiStatementError</code>
+if the rendered SQL contains a semicolon.  This prevents <code>; DROP TABLE users</code> style
+attacks even if an attacker can influence template structure (e.g., via <code>{% raw %}</code>
+blocks in user-controlled templates).</p>
+<h3 id="6-template-size-limit">6. Template Size Limit<a class="headerlink" href="#6-template-size-limit" title="Permanent link">&para;</a></h3>
+<p>Templates larger than <code>max_template_size</code> bytes (default: 64 KB) raise
+<code>TemplateSizeLimitError</code> before compilation.  This is a DoS protection measure —
+a carefully crafted exponential-expansion template could otherwise consume unbounded
+memory and CPU.</p>
+<hr />
+<h2 id="attack-vectors-and-mitigations">Attack Vectors and Mitigations<a class="headerlink" href="#attack-vectors-and-mitigations" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Vector</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>"'; DROP TABLE t--"</code> as a value</td>
+<td>Auto-binding: ends up as a bind param, never in SQL</td>
+</tr>
+<tr>
+<td><code>{{ x \| safe }}</code> in template</td>
+<td><code>\|safe</code> filter is removed; <code>TemplateAssertionError</code> at compile time</td>
+</tr>
+<tr>
+<td><code>{{ x.__class__.__subclasses__() }}</code></td>
+<td><code>SandboxedEnvironment</code> raises <code>SecurityError</code></td>
+</tr>
+<tr>
+<td><code>{{ range(10**9) \| list }}</code> in template</td>
+<td><code>range</code> global removed; <code>UndefinedError</code></td>
+</tr>
+<tr>
+<td><code>{{ os.system("rm -rf /") }}</code></td>
+<td><code>os</code> not in template context; <code>UndefinedError</code></td>
+</tr>
+<tr>
+<td><code>users; DROP TABLE users</code> as an identifier</td>
+<td><code>UnsafeIdentifierError</code> via dangerous pattern check</td>
+</tr>
+<tr>
+<td><code>SELECT 1; DROP TABLE t</code> as static SQL</td>
+<td><code>MultiStatementError</code> (semicolon detected)</td>
+</tr>
+<tr>
+<td>100 MB template string</td>
+<td><code>TemplateSizeLimitError</code> before compilation</td>
+</tr>
+<tr>
+<td><code>{% raw %}{{ secret }}{% endraw %}</code></td>
+<td><code>{% raw %}</code> outputs content verbatim — no variable expansion</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="raw-blocks"><code>{% raw %}</code> Blocks<a class="headerlink" href="#raw-blocks" title="Permanent link">&para;</a></h2>
+<p><code>{% raw %}</code> outputs its content as literal text without Jinja2 processing.  No
+variable expansion occurs inside a <code>{% raw %}</code> block, so no bind parameters are
+created for that content.  This means:</p>
+<ul>
+<li>If an <strong>attacker controls the template source</strong> (not just values), they could insert
+  raw SQL via <code>{% raw %}DROP TABLE users{% endraw %}</code>.</li>
+<li><strong>Template source must always be trusted author-controlled code</strong>, never user input.</li>
+<li>Values from user input must always come through the normal <code>{{ variable }}</code> path.</li>
+</ul>
+<hr />
+<h2 id="what-sql-template-does-not-protect-against">What sql-template Does NOT Protect Against<a class="headerlink" href="#what-sql-template-does-not-protect-against" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Threat</th>
+<th>Responsibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Attacker-controlled template source</td>
+<td>Do not pass user input as a template string</td>
+</tr>
+<tr>
+<td>Privilege escalation via valid SQL</td>
+<td>Use least-privilege database accounts</td>
+</tr>
+<tr>
+<td>Logical SQL flaws</td>
+<td>Validate business logic independently</td>
+</tr>
+<tr>
+<td>Driver-level vulnerabilities</td>
+<td>Keep DB drivers up to date</td>
+</tr>
+<tr>
+<td>Unparameterized queries outside sql-template</td>
+<td>Audit all raw SQL in the codebase</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="production-recommendations">Production Recommendations<a class="headerlink" href="#production-recommendations" title="Permanent link">&para;</a></h2>
+<ol>
+<li>
+<p><strong>Use identifier allowlists</strong> in production for any column/table name that comes
+   from user input:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">engine</span> <span class="o">=</span> <span class="n">TemplateEngine</span><span class="p">(</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="n">identifier_allowlist</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;users&quot;</span><span class="p">,</span> <span class="s2">&quot;orders&quot;</span><span class="p">,</span> <span class="s2">&quot;products&quot;</span><span class="p">},</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="n">order_by_allowlist</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;created_at&quot;</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">},</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="p">)</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Keep templates in source control</strong> — never render templates from a database or
+   user-provided strings.</p>
+</li>
+<li>
+<p><strong>Use <code>empty_in_behavior="false_condition"</code></strong> if empty IN lists are expected, so
+   the query remains valid SQL instead of raising an exception.</p>
+</li>
+<li>
+<p><strong>Enable <code>max_template_size</code></strong> (it is enabled by default at 64 KB).  Only raise it
+   for genuinely large, trusted template files.</p>
+</li>
+<li>
+<p><strong>Use least-privilege DB accounts</strong> — even a perfectly parameterized query can do
+   damage if the DB user has <code>DROP TABLE</code> privilege.</p>
+</li>
+</ol>
+<hr />
+<h2 id="reporting-security-issues">Reporting Security Issues<a class="headerlink" href="#reporting-security-issues" title="Permanent link">&para;</a></h2>
+<p>Please report security vulnerabilities privately by opening a GitHub Security Advisory
+rather than a public issue.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.expand", "navigation.top", "content.code.copy", "content.code.annotate"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
