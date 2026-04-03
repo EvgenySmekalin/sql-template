@@ -15,3 +15,5 @@ venv/
 htmlcov/
 .coverage
 *.so
+site/
+.hypothesis/

@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any, Sequence
+from collections.abc import Callable, Sequence
+from typing import TYPE_CHECKING, Any
 
 from markupsafe import Markup
 
@@ -14,7 +15,7 @@ if TYPE_CHECKING:
     from sql_template.params import ParamCollector
 
 
-def make_bind_filter(collector: ParamCollector):  # noqa: ANN201
+def make_bind_filter(collector: ParamCollector) -> Callable[[Any, str], Markup]:
     """Create the _sql_bind filter bound to a specific ParamCollector."""
 
     def _sql_bind(value: Any, name: str = "") -> Markup:
@@ -29,7 +30,7 @@ def make_bind_filter(collector: ParamCollector):  # noqa: ANN201
 def make_inclause_filter(
     collector: ParamCollector,
     empty_in_behavior: str,
-):  # noqa: ANN201
+) -> Callable[[Sequence[Any]], Markup]:
     """Create the inclause filter bound to a specific ParamCollector."""
 
     def inclause(values: Sequence[Any]) -> Markup:
@@ -55,7 +56,7 @@ def make_inclause_filter(
 def make_identifier_filter(
     identifier_pattern: re.Pattern[str],
     identifier_allowlist: set[str] | None,
-):  # noqa: ANN201
+) -> Callable[[str], Markup]:
     """Create the identifier filter with validation config."""
 
     def identifier(value: str) -> Markup:
@@ -70,7 +71,7 @@ def make_identifier_filter(
     return identifier
 
 
-def make_nullable_filter(collector: ParamCollector):  # noqa: ANN201
+def make_nullable_filter(collector: ParamCollector) -> Callable[[Any], Markup]:
     """Create the nullable filter for NULL-safe comparisons."""
 
     def nullable(value: Any) -> Markup:
@@ -83,7 +84,7 @@ def make_nullable_filter(collector: ParamCollector):  # noqa: ANN201
     return nullable
 
 
-def make_like_escape_filter(collector: ParamCollector):  # noqa: ANN201
+def make_like_escape_filter(collector: ParamCollector) -> Callable[[str, str], Markup]:
     """Create the like_escape filter that escapes LIKE special characters."""
 
     def like_escape(value: str, wildcard: str = "%") -> Markup:
@@ -110,7 +111,7 @@ _ALLOWED_DIRECTIONS = frozenset({"ASC", "DESC", ""})
 def make_orderby_filter(
     identifier_pattern: re.Pattern[str],
     order_by_allowlist: set[str] | None,
-) -> object:
+) -> Callable[[str | Sequence[str]], Markup]:
     """Create the orderby filter for safe ORDER BY clause construction.
 
     Accepts a column name string or a list of column name strings.
@@ -139,7 +140,7 @@ def make_orderby_filter(
         )
         return f"{validated_col} {direction}".strip()
 
-    def orderby(value: "str | Sequence[str]") -> Markup:
+    def orderby(value: str | Sequence[str]) -> Markup:
         if isinstance(value, str):
             return Markup(_validate_one(value))
         items = list(value)
@@ -149,3 +150,24 @@ def make_orderby_filter(
 
     orderby._sql_bind_aware = True  # type: ignore[attr-defined]
     return orderby
+
+
+def make_paginate_global(collector: ParamCollector) -> Callable[[int, int], Markup]:
+    """Create the paginate() global function for LIMIT/OFFSET pagination.
+
+    Usage in templates:
+        SELECT * FROM t {{ paginate(page, page_size) }}
+
+    Both LIMIT and OFFSET are added as bind parameters.
+    page is 1-based. page_size must be a positive integer.
+    """
+
+    def paginate(page: int = 1, page_size: int = 20) -> Markup:
+        page = max(1, int(page))
+        page_size = max(1, int(page_size))
+        offset = (page - 1) * page_size
+        limit_ph = collector.add(page_size, name="limit")
+        offset_ph = collector.add(offset, name="offset")
+        return Markup(f"LIMIT {limit_ph} OFFSET {offset_ph}")
+
+    return paginate

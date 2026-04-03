@@ -1,5 +1,8 @@
 """Tests for the core TemplateEngine functionality."""
 
+import os
+import tempfile
+
 import pytest
 
 from sql_template import (
@@ -7,6 +10,7 @@ from sql_template import (
     ParamStyle,
     QueryResult,
     SQLTemplateError,
+    TemplateSizeLimitError,
     TemplateEngine,
     UnsafeIdentifierError,
 )
@@ -528,3 +532,137 @@ class TestLimitOffset:
         # Malicious value is a bind param, not in SQL
         assert "DROP TABLE" not in result.sql
         assert "10; DROP TABLE t--" in result.params
+
+
+class TestPaginateMacro:
+    def test_paginate_first_page_format(self):
+        engine = TemplateEngine(param_style=ParamStyle.FORMAT)
+        result = engine.prepare(
+            "SELECT * FROM t {{ paginate(page, page_size) }}",
+            {"page": 1, "page_size": 10},
+        )
+        assert "LIMIT %s OFFSET %s" in result.sql
+        assert result.params == [10, 0]
+
+    def test_paginate_second_page(self):
+        engine = TemplateEngine(param_style=ParamStyle.FORMAT)
+        result = engine.prepare(
+            "SELECT * FROM t {{ paginate(page, page_size) }}",
+            {"page": 3, "page_size": 20},
+        )
+        assert result.params == [20, 40]
+
+    def test_paginate_named_style(self):
+        engine = TemplateEngine(param_style=ParamStyle.NAMED)
+        result = engine.prepare(
+            "SELECT * FROM t {{ paginate(page, 10) }}",
+            {"page": 2},
+        )
+        assert "LIMIT" in result.sql
+        assert "OFFSET" in result.sql
+        assert result.params.get("limit") == 10
+        assert result.params.get("offset") == 10
+
+    def test_paginate_page_below_one_clamped(self):
+        engine = TemplateEngine(param_style=ParamStyle.FORMAT)
+        result = engine.prepare(
+            "SELECT * FROM t {{ paginate(page, 5) }}",
+            {"page": -3},
+        )
+        # page is clamped to 1, offset = 0
+        assert result.params == [5, 0]
+
+    def test_paginate_asyncpg(self):
+        engine = TemplateEngine(param_style=ParamStyle.ASYNCPG)
+        result = engine.prepare(
+            "SELECT * FROM t {{ paginate(2, 15) }}",
+            {},
+        )
+        assert "$1" in result.sql
+        assert "$2" in result.sql
+        assert result.params == [15, 15]
+
+
+class TestTemplateSizeLimit:
+    def test_template_within_limit(self):
+        engine = TemplateEngine(max_template_size=100)
+        result = engine.prepare("SELECT 1", {})
+        assert result.sql == "SELECT 1"
+
+    def test_template_exceeds_limit(self):
+        engine = TemplateEngine(max_template_size=10)
+        with pytest.raises(TemplateSizeLimitError) as exc_info:
+            engine.prepare("SELECT * FROM very_long_table_name WHERE id = {{ id }}", {"id": 1})
+        assert exc_info.value.limit == 10
+
+    def test_from_string_exceeds_limit(self):
+        engine = TemplateEngine(max_template_size=5)
+        with pytest.raises(TemplateSizeLimitError):
+            engine.from_string("SELECT 1 FROM users")
+
+    def test_no_limit_when_none(self):
+        engine = TemplateEngine(max_template_size=None)
+        big_template = "SELECT " + ", ".join(f"col_{i}" for i in range(1000)) + " FROM t"
+        result = engine.prepare(big_template, {})
+        assert "col_0" in result.sql
+
+
+class TestTemplateFiles:
+    def test_from_file_basic(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            sql_file = os.path.join(tmpdir, "query.sql")
+            with open(sql_file, "w") as f:
+                f.write("SELECT * FROM users WHERE id = {{ user_id }}")
+
+            engine = TemplateEngine(
+                param_style=ParamStyle.NAMED,
+                search_path=[tmpdir],
+            )
+            template = engine.from_file("query.sql")
+            result = template.render(user_id=42)
+
+        assert ":user_id" in result.sql
+        assert result.params == {"user_id": 42}
+
+    def test_template_inheritance(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            base_file = os.path.join(tmpdir, "base.sql")
+            child_file = os.path.join(tmpdir, "child.sql")
+
+            with open(base_file, "w") as f:
+                f.write("SELECT {% block cols %}*{% endblock %} FROM users")
+
+            with open(child_file, "w") as f:
+                f.write("{% extends 'base.sql' %}{% block cols %}id, name{% endblock %}")
+
+            engine = TemplateEngine(search_path=[tmpdir])
+            template = engine.from_file("child.sql")
+            result = template.render()
+
+        assert "id, name" in result.sql
+        assert "FROM users" in result.sql
+
+    def test_template_include(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            fragment_file = os.path.join(tmpdir, "where_active.sql")
+            main_file = os.path.join(tmpdir, "main.sql")
+
+            with open(fragment_file, "w") as f:
+                f.write("WHERE active = {{ active }}")
+
+            with open(main_file, "w") as f:
+                f.write("SELECT * FROM users {% include 'where_active.sql' %}")
+
+            engine = TemplateEngine(search_path=[tmpdir])
+            result = engine.prepare(
+                "SELECT * FROM users {% include 'where_active.sql' %}",
+                {"active": True},
+            )
+
+        assert "WHERE active = %s" in result.sql
+        assert result.params == [True]
+
+    def test_cache_size_zero_disables_cache(self):
+        engine = TemplateEngine(cache_size=0)
+        result = engine.prepare("SELECT {{ x }}", {"x": 1})
+        assert result.params == [1]

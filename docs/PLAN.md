@@ -60,37 +60,37 @@ We take the best ideas from JinjaSQL (automatic parameter binding via filter_str
 - [x] `|like_escape` filter — escaping % and _ in LIKE
 - [x] Optional ORDER BY support with allowlist (`|orderby` filter)
 - [x] LIMIT/OFFSET support (auto-bound as bind parameters)
-- [ ] Pagination macro
+- [x] Pagination macro (`paginate(page, page_size)` global)
 
 ### Phase 3: Template Files and Organization
 **Goal:** Working with file-based templates
 
 - [x] Loading templates from files
 - [x] Loading from directories (FileSystemLoader)
-- [ ] Template inheritance (base queries)
-- [ ] Include/import for fragment reuse
-- [ ] Compiled template caching
+- [x] Template inheritance (base queries) — native Jinja2 `{% extends %}` + `{% block %}`
+- [x] Include/import for fragment reuse — native `{% include %}` / `{% import %}`
+- [x] Compiled template caching (`cache_size` in-memory LRU, optional `cache_dir` bytecode cache)
 
 ### Phase 4: Security and Hardening
 **Goal:** Full protection against SQL injection and other attacks
 
-- [ ] Audit: attempts to bypass auto-binding via `{% raw %}`, `Markup`, `|safe`
-- [ ] Block dangerous Jinja2 features in SQL context
+- [x] Audit: attempts to bypass auto-binding via `{% raw %}`, `Markup`, `|safe` — covered in `tests/test_security.py`
+- [x] Block dangerous Jinja2 features in SQL context (removed `|safe`, `|xmlattr`, `range`, `lipsum`, `namespace`, `cycler`, `joiner`)
 - [x] Identifier validation (regex + allowlist)
 - [x] SQL comment injection prevention (`--`, `/*`)
-- [ ] Template length and nesting depth limits
-- [ ] Security fuzz testing
-- [ ] Security model documentation
+- [x] Template size limits (`max_template_size`, default 64 KB — DoS protection)
+- [x] Security fuzz testing (hypothesis property-based tests in `tests/test_security.py`)
+- [x] Security model documentation (`docs/SECURITY.md`)
 
 ### Phase 5: DX and Documentation
 **Goal:** Developer experience
 
-- [ ] README with examples
-- [ ] API documentation (docstrings + mkdocs/sphinx)
-- [ ] Cookbook: common use cases
-- [ ] Integration examples: psycopg2, asyncpg, SQLAlchemy, Django
+- [x] README with examples
+- [x] API documentation (docstrings + mkdocs/sphinx)
+- [x] Cookbook: common use cases (`docs/COOKBOOK.md`)
+- [x] Integration examples: psycopg2, asyncpg, SQLAlchemy (in `docs/COOKBOOK.md`)
 - [x] Type stubs / py.typed
-- [ ] CLI for template validation (optional)
+- [x] CLI for template validation (`python -m sql_template render/check`, `sql-template` entry point)
 
 ## Key Design Decisions
 

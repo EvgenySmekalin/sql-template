@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import threading
 from enum import Enum
-from typing import Union
 
 from markupsafe import Markup
 
@@ -32,8 +31,10 @@ class ParamCollector:
         self._local = threading.local()
 
     def _init_state(self) -> None:
-        self._local.params: list[object] = []
-        self._local.param_names: dict[str, int] = {}
+        # Inline type declarations are not supported on threading.local attributes;
+        # mypy sees them as "non-self".  Assign without annotation here.
+        self._local.params = []
+        self._local.param_names = {}
         self._local.counter = 0
 
     def start(self) -> None:
@@ -88,8 +89,8 @@ class ParamCollector:
             names[safe_base] = count
             return f"{safe_base}_{count}"
 
-    def get_results(self) -> Union[list[object], dict[str, object]]:
+    def get_results(self) -> list[object] | dict[str, object]:
         """Return collected parameters in the appropriate format."""
         if self.param_style.uses_dict:
-            return {name: value for name, value in self._local.params}
+            return dict(self._local.params)
         return list(self._local.params)

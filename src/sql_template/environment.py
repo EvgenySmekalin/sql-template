@@ -14,6 +14,7 @@ from sql_template.filters import (
     make_like_escape_filter,
     make_nullable_filter,
     make_orderby_filter,
+    make_paginate_global,
 )
 from sql_template.params import ParamCollector
 
@@ -26,11 +27,14 @@ def create_sql_environment(
     order_by_allowlist: set[str] | None = None,
     empty_in_behavior: str = "error",
     search_path: list[str] | None = None,
+    cache_size: int = 400,
+    cache_dir: str | None = None,
 ) -> SandboxedEnvironment:
     """Create a sandboxed Jinja2 environment configured for SQL rendering."""
-    from jinja2 import FileSystemLoader
+    from jinja2 import FileSystemBytecodeCache, FileSystemLoader
 
     loader = FileSystemLoader(search_path) if search_path else None
+    bytecode_cache = FileSystemBytecodeCache(cache_dir) if cache_dir else None
 
     env = SandboxedEnvironment(
         extensions=[SQLBindExtension],
@@ -39,6 +43,9 @@ def create_sql_environment(
         # Keep whitespace control flexible for SQL
         trim_blocks=True,
         lstrip_blocks=True,
+        cache_size=cache_size,
+        bytecode_cache=bytecode_cache,
+        auto_reload=cache_dir is None,  # disable filesystem reload when using cache_dir
     )
 
     # Register the auto-bind filter
@@ -54,12 +61,18 @@ def create_sql_environment(
     env.filters["orderby"] = make_orderby_filter(identifier_pattern, order_by_allowlist)
 
     # Remove potentially dangerous filters
-    for unsafe_filter in ("safe", "markup", "striptags"):
+    for unsafe_filter in ("safe", "markup", "striptags", "xmlattr"):
         env.filters.pop(unsafe_filter, None)
 
-    # Add built-in SQL macros as globals
+    # Remove Jinja2 globals that are not relevant in SQL context and
+    # could be used for template injection or information disclosure.
+    for unused_global in ("lipsum", "cycler", "joiner", "namespace", "range"):
+        env.globals.pop(unused_global, None)
+
+    # Add built-in SQL macros and helpers as globals
     env.globals["where"] = _where_macro
     env.globals["set_clause"] = _set_clause_macro
+    env.globals["paginate"] = make_paginate_global(collector)
 
     return env
 

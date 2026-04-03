@@ -30,6 +30,9 @@ dependencies = [
     "jinja2>=3.1",
 ]
 
+[project.scripts]
+sql-template = "sql_template.cli:main"
+
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0",
@@ -37,6 +40,9 @@ dev = [
     "hypothesis>=6.0",
     "ruff>=0.4",
     "mypy>=1.10",
+    "mkdocs>=1.6",
+    "mkdocs-material>=9.5",
+    "mkdocstrings[python]>=0.25",
 ]
 
 [tool.hatch.build.targets.wheel]

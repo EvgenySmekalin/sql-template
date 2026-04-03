@@ -24,15 +24,16 @@ template: str ─────►│  ┌─────────────�
 ```
 src/sql_template/
 ├── __init__.py          # Public API: TemplateEngine, QueryResult, exceptions
-├── engine.py            # TemplateEngine — main entry point
+├── __main__.py          # Entry point for `python -m sql_template`
+├── engine.py            # TemplateEngine, SQLTemplate — main entry point
 ├── result.py            # QueryResult dataclass
-├── environment.py       # Jinja2 Environment setup (sandbox + extension)
+├── environment.py       # Jinja2 Environment setup (sandbox + filters + macro globals)
 ├── ext.py               # SQLBindExtension — Jinja2 extension for auto-binding
-├── filters.py           # SQL filters: inclause, identifier, like_escape, etc.
+├── filters.py           # SQL filters: inclause, identifier, like_escape, orderby, etc.
 ├── params.py            # ParamStyle enum + ParamCollector for parameter collection
-├── security.py          # Identifier validation, security checks
+├── security.py          # Identifier validation, multistatement check
 ├── exceptions.py        # Custom exceptions
-├── macros.py            # Built-in SQL macros (where, set_clause)
+├── cli.py               # CLI: render / check commands
 └── py.typed             # PEP-561 marker
 ```
 
@@ -48,9 +49,13 @@ engine = TemplateEngine(
     param_style=ParamStyle.NAMED,      # default: FORMAT (%s)
     identifier_allowlist=None,          # Optional[set[str]] — allowed table/column names
     identifier_pattern=r"^[a-zA-Z_][a-zA-Z0-9_.]*$",  # regex for validation
+    order_by_allowlist=None,            # Optional[set[str]] — allowed ORDER BY columns
     allow_multistatement=False,         # disallow ; in templates
     empty_in_behavior="error",          # "error" | "false_condition"
     search_path=None,                   # Optional[list[str]] — paths for template lookup
+    max_template_size=65_536,           # bytes; None = unlimited (default 64 KB)
+    cache_size=400,                     # in-memory LRU template cache size
+    cache_dir=None,                     # Optional[str] — bytecode cache directory
 )
 
 # Quick render from string
@@ -317,13 +322,17 @@ Dot notation access works natively in Jinja2.
 
 ### Test Categories
 
-1. **Unit tests**: each filter, extension, param_style
-2. **Integration tests**: full render scenarios
-3. **Security tests**: SQL injection attempts, SSTI, bypasses
-4. **Edge-case tests**: empty IN, NULL, nested params, whitespace
+1. **Unit tests**: each filter, extension, param_style (`tests/test_engine.py`)
+2. **Integration tests**: full render scenarios (`tests/test_engine.py`)
+3. **Security tests**: SQL injection attempts, SSTI, bypass vectors (`tests/test_security.py`)
+4. **Edge-case tests**: empty IN, NULL, nested params, whitespace (`tests/test_engine.py`)
 5. **Param-style tests**: one template verified for all param_styles
+6. **CLI tests**: render/check commands (`tests/test_cli.py`)
+7. **Fuzz tests**: Hypothesis property-based tests for arbitrary input (`tests/test_security.py`)
 
 ### Tools
 - pytest
-- pytest-cov (coverage = 100%)
-- hypothesis (property-based tests for security)
+- pytest-cov (coverage)
+- hypothesis (property-based fuzz tests for security)
+- mypy (strict type checking, zero errors)
+- ruff (linting, zero warnings)

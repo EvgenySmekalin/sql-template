@@ -39,3 +39,14 @@ class MultiStatementError(SQLTemplateSecurityError):
             "Multiple SQL statements detected (semicolon found). "
             "Set allow_multistatement=True to allow this."
         )
+
+
+class TemplateSizeLimitError(SQLTemplateSecurityError):
+    """Raised when a template string exceeds the configured size limit."""
+
+    def __init__(self, size: int, limit: int) -> None:
+        self.size = size
+        self.limit = limit
+        super().__init__(
+            f"Template size {size} bytes exceeds the limit of {limit} bytes."
+        )

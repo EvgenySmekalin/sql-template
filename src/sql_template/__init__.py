@@ -5,6 +5,7 @@ from sql_template.exceptions import (
     EmptyInClauseError,
     SQLTemplateError,
     SQLTemplateSecurityError,
+    TemplateSizeLimitError,
     UnsafeIdentifierError,
 )
 from sql_template.params import ParamStyle
@@ -18,4 +19,5 @@ __all__ = [
     "SQLTemplateSecurityError",
     "UnsafeIdentifierError",
     "EmptyInClauseError",
+    "TemplateSizeLimitError",
 ]

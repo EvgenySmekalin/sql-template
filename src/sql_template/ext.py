@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Generator
 from typing import TYPE_CHECKING
 
-from jinja2 import Environment
 from jinja2.ext import Extension
 from jinja2.lexer import Token, TokenStream
 
@@ -45,7 +45,9 @@ class SQLBindExtension(Extension):
     {{ expression }} block, unless the expression already uses a bind-aware filter.
     """
 
-    def filter_stream(self, stream: TokenStream) -> TokenStream:  # type: ignore[override]
+    def filter_stream(
+        self, stream: TokenStream
+    ) -> Generator[Token, None, None]:
         for token in stream:
             if token.test("variable_begin"):
                 # Collect all tokens until variable_end
@@ -68,8 +70,7 @@ class SQLBindExtension(Extension):
                     var_name = _extract_var_name(var_tokens)
 
                     # Insert |_sql_bind("name") before variable_end
-                    for t in var_tokens[:-1]:
-                        yield t
+                    yield from var_tokens[:-1]
                     lineno = var_tokens[-1].lineno
                     # Add pipe + filter name + (name_arg)
                     yield Token(lineno, "pipe", "|")

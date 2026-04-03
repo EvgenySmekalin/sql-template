@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 from dataclasses import dataclass
-from typing import Iterator, Union
 
 
 @dataclass(frozen=True)
@@ -15,8 +15,8 @@ class QueryResult:
     """
 
     sql: str
-    params: Union[list[object], dict[str, object]]
+    params: list[object] | dict[str, object]
 
-    def __iter__(self) -> Iterator[Union[str, list[object], dict[str, object]]]:
+    def __iter__(self) -> Iterator[str | list[object] | dict[str, object]]:
         yield self.sql
         yield self.params

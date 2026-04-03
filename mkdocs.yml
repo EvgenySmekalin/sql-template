@@ -1,0 +1,69 @@
+site_name: sql-template
+site_description: Generate SQL queries from Jinja2 templates with automatic parameter binding
+site_url: https://github.com/evgeny/sql-template
+repo_url: https://github.com/evgeny/sql-template
+repo_name: sql-template
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - content.code.copy
+    - content.code.annotate
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            docstring_style: google
+            show_source: true
+            show_root_heading: true
+            show_signature_annotations: true
+            merge_init_into_class: true
+            heading_level: 2
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - API Reference:
+    - TemplateEngine: api/engine.md
+    - QueryResult: api/result.md
+    - ParamStyle: api/params.md
+    - Filters: api/filters.md
+    - Exceptions: api/exceptions.md
+    - CLI: api/cli.md
+  - Guides:
+    - Cookbook: COOKBOOK.md
+    - Security Model: SECURITY.md
+  - Development:
+    - Plan: PLAN.md
+    - Technical Spec: TECH_SPEC.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - toc:
+      permalink: true
