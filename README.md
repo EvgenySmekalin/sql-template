@@ -283,7 +283,17 @@ engine = TemplateEngine(
 
 ## Documentation
 
-- [Development Plan](docs/PLAN.md) — roadmap and development phases
-- [Technical Specification](docs/TECH_SPEC.md) — architecture, API, security model
-- [Cookbook](docs/COOKBOOK.md) — real-world recipes and integration examples
-- [Security Model](docs/SECURITY.md) — threat model, protections, recommendations
+Full documentation is available at **https://EvgenySmekalin.github.io/sql-template**
+
+- [Getting Started](https://EvgenySmekalin.github.io/sql-template/getting-started.html) — installation, first steps, driver examples
+- [API Reference](https://EvgenySmekalin.github.io/sql-template/api/engine.html) — complete API documentation
+- [Cookbook](https://EvgenySmekalin.github.io/sql-template/COOKBOOK.html) — real-world recipes and integration examples
+- [Security Model](https://EvgenySmekalin.github.io/sql-template/SECURITY.html) — threat model, protections, recommendations
+
+### Build docs locally
+
+```bash
+pip install -e ".[dev]"
+mkdocs serve          # live preview at http://localhost:8000
+mkdocs build          # generate static site in site/
+```

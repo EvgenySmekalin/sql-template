@@ -30,6 +30,12 @@ dependencies = [
     "jinja2>=3.1",
 ]
 
+[project.urls]
+Homepage = "https://github.com/EvgenySmekalin/sql-template"
+Documentation = "https://EvgenySmekalin.github.io/sql-template"
+Changelog = "https://github.com/EvgenySmekalin/sql-template/blob/main/CHANGELOG.md"
+Issues = "https://github.com/EvgenySmekalin/sql-template/issues"
+
 [project.scripts]
 sql-template = "sql_template.cli:main"
 
@@ -40,6 +46,7 @@ dev = [
     "hypothesis>=6.0",
     "ruff>=0.4",
     "mypy>=1.10",
+    "hatch>=1.12",
     "mkdocs>=1.6",
     "mkdocs-material>=9.5",
     "mkdocstrings[python]>=0.25",

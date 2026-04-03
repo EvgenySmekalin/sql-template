@@ -1,8 +1,8 @@
 site_name: sql-template
 site_description: Generate SQL queries from Jinja2 templates with automatic parameter binding
-site_url: https://github.com/evgeny/sql-template
-repo_url: https://github.com/evgeny/sql-template
-repo_name: sql-template
+site_url: https://EvgenySmekalin.github.io/sql-template
+repo_url: https://github.com/EvgenySmekalin/sql-template
+repo_name: EvgenySmekalin/sql-template
 
 theme:
   name: material
@@ -18,8 +18,8 @@ theme:
         icon: material/brightness-4
         name: Switch to light mode
   features:
-    - navigation.tabs
-    - navigation.sections
+    - navigation.expand
+    - navigation.top
     - content.code.copy
     - content.code.annotate
 
@@ -31,9 +31,11 @@ plugins:
           paths: [src]
           options:
             docstring_style: google
-            show_source: true
+            show_source: false
             show_root_heading: true
+            show_root_full_path: false
             show_signature_annotations: true
+            separate_signature: true
             merge_init_into_class: true
             heading_level: 2
 
@@ -53,6 +55,8 @@ nav:
   - Development:
     - Plan: PLAN.md
     - Technical Spec: TECH_SPEC.md
+
+use_directory_urls: false
 
 markdown_extensions:
   - admonition
